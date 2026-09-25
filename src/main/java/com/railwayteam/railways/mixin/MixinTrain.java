@@ -398,7 +398,7 @@ public abstract class MixinTrain implements IOccupiedCouplers, IIndexedSchedule,
     }
 
     @Inject(method = "write", at = @At("RETURN"))
-    private void writeShadowSnapshot(DimensionPalette dimensions, HolderLookup.Provider registries, CallbackInfoReturnable<CompoundTag> cir) {
+    private void writeShadowSnapshot(CallbackInfoReturnable<CompoundTag> cir) {
         if (railways$shadowSnapshot != null) {
             CompoundTag tag = cir.getReturnValue();
             tag.put("ShadowSnapshot", railways$shadowSnapshot.copy());
@@ -411,8 +411,7 @@ public abstract class MixinTrain implements IOccupiedCouplers, IIndexedSchedule,
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private static void readShadowSnapshot(CompoundTag tag, HolderLookup.Provider registries, Map<UUID, TrackGraph> trackNetworks,
-                                           DimensionPalette dimensions, CallbackInfoReturnable<Train> cir,
+    private static void readShadowSnapshot(CompoundTag tag, CallbackInfoReturnable<Train> cir,
                                            @Local Train train) {
         if (tag.contains("ShadowSnapshot", Tag.TAG_COMPOUND)) {
             CompoundTag snapshot = tag.getCompound("ShadowSnapshot").copy();
