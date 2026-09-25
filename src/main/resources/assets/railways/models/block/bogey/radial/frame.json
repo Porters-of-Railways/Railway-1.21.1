@@ -5,7 +5,7 @@
   "flip_v": true,
   "model": "railways:models/block/bogey/radial/frame.obj",
   "textures": {
-    "0": "railways:block/bogeys/standard/radial_frame",
+    "0": "railways:block/bogeys/standard/radial_body",
     "1": "create:block/bogey/wheel"
   }
 }
