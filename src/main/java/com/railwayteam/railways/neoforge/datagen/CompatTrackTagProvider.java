@@ -12,9 +12,14 @@ import com.simibubi.create.content.trains.track.TrackMaterial;
 import com.railwayteam.railways.compat.tracks.TrackCompatUtils;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class CompatTrackTagProvider extends TagsProvider<Item> {
+    private static final Map<String, String> RENAMED_COMPAT_NAMESPACES = Map.of(
+        "byg", "biomeswevegone"
+    );
+
     public CompatTrackTagProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(packOutput, Registries.ITEM, lookupProvider);
     }
@@ -27,7 +32,8 @@ public class CompatTrackTagProvider extends TagsProvider<Item> {
                 TagKey<Item> tagKey = TagKey.create(Registries.ITEM, tagId);
 
                 String woodName = material.resourceName().replace("_narrow", "").replace("_wide", "");
-                ResourceLocation actualCompatSlabId = resolveCompatSlabId(material.id.getNamespace(), woodName);
+                String namespace = RENAMED_COMPAT_NAMESPACES.getOrDefault(material.id.getNamespace(), material.id.getNamespace());
+                ResourceLocation actualCompatSlabId = resolveCompatSlabId(namespace, woodName);
                 this.tag(tagKey).addOptional(actualCompatSlabId);
             }
         }

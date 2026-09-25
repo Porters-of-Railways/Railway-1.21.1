@@ -21,7 +21,7 @@
   "conditions": [
     {
       "condition": "neoforge:mod_loaded",
-      "modid": "byg"
+      "modid": "biomeswevegone"
     }
   ]
 }

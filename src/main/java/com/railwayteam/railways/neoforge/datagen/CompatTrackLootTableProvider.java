@@ -38,7 +38,7 @@ public class CompatTrackLootTableProvider implements DataProvider {
     private static final Map<String, String> MOD_ID_MAP = Map.ofEntries(
         Map.entry("biomesoplenty", "biomesoplenty"),
         Map.entry("blue_skies", "blue_skies"),
-        Map.entry("byg", "byg"),
+        Map.entry("byg", "biomeswevegone"),
         Map.entry("create_dd", "create_dd"),
         Map.entry("hexcasting", "hexcasting"),
         Map.entry("natures_spirit", "natures_spirit"),
