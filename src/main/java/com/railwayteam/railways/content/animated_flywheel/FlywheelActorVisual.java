@@ -48,7 +48,6 @@ class FlywheelActorVisual extends ActorVisual {
 
 		BlockState state = context.state;
 		BlockPos localPos = context.localPos;
-		@SuppressWarnings("null")
 		Direction.Axis axis = state.getValue(BlockStateProperties.AXIS);
 
 		Instancer<RotatingInstance> shaftInstancer = instancerProvider.instancer(
@@ -70,7 +69,6 @@ class FlywheelActorVisual extends ActorVisual {
 		);
 		this.wheel = wheelInstancer.createInstance();
 
-		@SuppressWarnings("null")
 		Direction facing = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE);
 		this.wheel
 			.setIdentityTransform()
@@ -136,7 +134,6 @@ class FlywheelActorVisual extends ActorVisual {
 		if (!(carriageContraption.entity instanceof CarriageContraptionEntity carriageContraptionEntity))
 			return 0;
 
-		@SuppressWarnings("null")
 		Direction.Axis axis = context.state.getValue(BlockStateProperties.AXIS);
 		if (axis.isVertical())
 			return 0;
