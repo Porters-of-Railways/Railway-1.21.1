@@ -1,7 +1,10 @@
 package com.railwayteam.railways.content.animated_flywheel;
 
+import com.railwayteam.railways.Railways;
 import com.railwayteam.railways.config.CRConfigs;
+import com.railwayteam.railways.content.palettes.PalettesColor;
 import com.railwayteam.railways.mixin_interfaces.IDistanceTravelled;
+import com.railwayteam.railways.registry.CRBlockPartials;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.render.ActorVisual;
@@ -16,14 +19,19 @@ import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.instance.InstanceTypes;
 import dev.engine_room.flywheel.lib.instance.TransformedInstance;
 import dev.engine_room.flywheel.lib.model.Models;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+
+import java.util.Locale;
 
 class FlywheelActorVisual extends ActorVisual {
 	private static final double FLYWHEEL_DIAMETER = 2.8125; 
@@ -55,9 +63,10 @@ class FlywheelActorVisual extends ActorVisual {
 			.light(localBlockLight(), 0)
 			.setChanged();
 
+		PartialModel wheelModel = getFlywheelModel(state);
 		Instancer<TransformedInstance> wheelInstancer = instancerProvider.instancer(
 			InstanceTypes.TRANSFORMED,
-			Models.partial(AllPartialModels.FLYWHEEL)
+			Models.partial(wheelModel)
 		);
 		this.wheel = wheelInstancer.createInstance();
 
@@ -73,6 +82,30 @@ class FlywheelActorVisual extends ActorVisual {
 		this.lastRenderTime = Float.NaN;
 
 		applyWheelAngle(0);
+	}
+
+	private PartialModel getFlywheelModel(BlockState state) {
+		ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+		if (id != null && Railways.MOD_ID.equals(id.getNamespace()) && id.getPath().endsWith("locometal_flywheel")) {
+			String path = id.getPath();
+			PalettesColor color;
+			try {
+				color = path.equals("locometal_flywheel")
+					? PalettesColor.NETHERITE
+					: PalettesColor.valueOf(path.substring(0, path.length() - "_locometal_flywheel".length()).toUpperCase(Locale.ROOT));
+			} catch (IllegalArgumentException exception) {
+				Railways.LOGGER.warn("Unknown palette flywheel block {} — falling back to default model", id);
+				return AllPartialModels.FLYWHEEL;
+			}
+
+			PartialModel model = CRBlockPartials.FLYWHEELS.get(color);
+			if (model != null) {
+				return model;
+			}
+
+			Railways.LOGGER.warn("Missing palette flywheel partial for {} — falling back to default model", color.getSerializedName());
+		}
+		return AllPartialModels.FLYWHEEL;
 	}
 
 	@Override
