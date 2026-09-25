@@ -37,12 +37,19 @@ public class MixinFlywheelVisual {
                                                          VisualizationContext context, FlywheelBlockEntity blockEntity, float partialTick) {
         ResourceLocation id = BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock());
         if (partial == AllPartialModels.FLYWHEEL
+            && id != null
             && Railways.MOD_ID.equals(id.getNamespace())
             && id.getPath().endsWith("locometal_flywheel")) {
             String path = id.getPath();
-            PalettesColor color = path.equals("locometal_flywheel")
-                ? PalettesColor.NETHERITE
-                : PalettesColor.valueOf(path.substring(0, path.length() - "_locometal_flywheel".length()).toUpperCase(Locale.ROOT));
+            PalettesColor color;
+            try {
+                color = path.equals("locometal_flywheel")
+                    ? PalettesColor.NETHERITE
+                    : PalettesColor.valueOf(path.substring(0, path.length() - "_locometal_flywheel".length()).toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException exception) {
+                Railways.LOGGER.warn("Unknown palette flywheel block {} — falling back to block model", id);
+                return Models.block(blockEntity.getBlockState());
+            }
 
             PartialModel model = CRBlockPartials.FLYWHEELS.get(color);
             if (model != null) {

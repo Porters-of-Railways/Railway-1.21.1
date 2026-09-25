@@ -84,11 +84,17 @@ class FlywheelActorVisual extends ActorVisual {
 
 	private PartialModel getFlywheelModel(BlockState state) {
 		ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-		if (Railways.MOD_ID.equals(id.getNamespace()) && id.getPath().endsWith("locometal_flywheel")) {
+		if (id != null && Railways.MOD_ID.equals(id.getNamespace()) && id.getPath().endsWith("locometal_flywheel")) {
 			String path = id.getPath();
-			PalettesColor color = path.equals("locometal_flywheel")
-				? PalettesColor.NETHERITE
-				: PalettesColor.valueOf(path.substring(0, path.length() - "_locometal_flywheel".length()).toUpperCase(Locale.ROOT));
+			PalettesColor color;
+			try {
+				color = path.equals("locometal_flywheel")
+					? PalettesColor.NETHERITE
+					: PalettesColor.valueOf(path.substring(0, path.length() - "_locometal_flywheel".length()).toUpperCase(Locale.ROOT));
+			} catch (IllegalArgumentException exception) {
+				Railways.LOGGER.warn("Unknown palette flywheel block {} — falling back to default model", id);
+				return AllPartialModels.FLYWHEEL;
+			}
 
 			PartialModel model = CRBlockPartials.FLYWHEELS.get(color);
 			if (model != null) {
