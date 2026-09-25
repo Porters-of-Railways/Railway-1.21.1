@@ -40,11 +40,13 @@ import com.simibubi.create.content.trains.RailwaySavedData;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.entity.TrainRelocator;
+import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.content.trains.track.BezierTrackPointLocation;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -77,6 +79,9 @@ public class ShadowRealm {
             throw DUPLICATE_KEY.create(shadowKey);
 
         shadowTrain.railways$setShadow(shadowKey);
+        DimensionPalette snapshotDimensions = new DimensionPalette();
+        CompoundTag snapshot = train.write(snapshotDimensions, HolderLookup.Provider.create(java.util.stream.Stream.empty()));
+        shadowTrain.railways$setShadowSnapshot(snapshot, snapshotDimensions);
         // Discard all passengers from carriages
         for (Carriage carriage : train.carriages) {
             carriage.forEachPresentEntity(e -> {
@@ -144,8 +149,14 @@ public class ShadowRealm {
         CompoundTag shadowSnapshot = shadowTrain.railways$getShadowSnapshot();
         com.simibubi.create.content.trains.graph.DimensionPalette shadowSnapshotDimensions = shadowTrain.railways$getShadowSnapshotDimensions();
         if (shadowSnapshot != null && shadowSnapshotDimensions != null) {
-            train = Train.read(shadowSnapshot.copy(), target.level().registryAccess(), Create.RAILWAYS.trackNetworks, shadowSnapshotDimensions);
-            shadowTrain = (IShadowTrain) train;
+            Train snapshotTrain = Train.read(shadowSnapshot.copy(), target.level().registryAccess(), Create.RAILWAYS.trackNetworks, shadowSnapshotDimensions);
+            boolean hasLiveEntities = train.carriages.stream().anyMatch(carriage -> carriage.anyAvailableEntity() != null);
+            if (hasLiveEntities) {
+                train.graph = snapshotTrain.graph;
+            } else {
+                train = snapshotTrain;
+                shadowTrain = (IShadowTrain) train;
+            }
         }
 
         if (!target.apply(train)) return false;

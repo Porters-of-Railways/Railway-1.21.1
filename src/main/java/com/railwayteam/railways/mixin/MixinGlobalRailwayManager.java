@@ -27,7 +27,6 @@ import com.simibubi.create.content.trains.RailwaySavedData;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
-import net.minecraft.core.HolderLookup;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,8 +41,6 @@ public class MixinGlobalRailwayManager {
         if (instance instanceof IShadowTrain shadowTrain && shadowTrain.railways$isShadow()) {
             // Write all carriages to store their entities before moving to shadow storage
             DimensionPalette dimensions = new DimensionPalette();
-            var snapshot = instance.write(dimensions, HolderLookup.Provider.create(java.util.stream.Stream.empty()));
-            shadowTrain.railways$setShadowSnapshot(snapshot, dimensions);
             for (Carriage carriage : instance.carriages) {
                 carriage.write(dimensions, net.minecraft.core.RegistryAccess.EMPTY);
             }
