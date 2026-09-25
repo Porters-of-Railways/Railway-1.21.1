@@ -82,7 +82,7 @@ public class ShadowRealmCommand {
             return 0;
         }
 
-        ShadowRealm.banishTrain(train, shadowKey);
+        ShadowRealm.banishTrain(train, shadowKey, source.getLevel().registryAccess());
 
         source.sendSuccess(() -> Component.literal("Train '").append(train.name)
             .append("' banished to the shadow realm"), true);

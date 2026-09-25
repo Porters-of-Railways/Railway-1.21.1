@@ -70,7 +70,7 @@ public class ShadowRealm {
         key -> () -> "Shadow key '" + key + "' is already in use"
     );
 
-    public static void banishTrain(Train train, ResourceLocation shadowKey) throws CommandSyntaxException {
+    public static void banishTrain(Train train, ResourceLocation shadowKey, HolderLookup.Provider registries) throws CommandSyntaxException {
         IShadowTrain shadowTrain = (IShadowTrain) train;
         if (shadowTrain.railways$isShadow()) return;
 
@@ -80,7 +80,7 @@ public class ShadowRealm {
 
         shadowTrain.railways$setShadow(shadowKey);
         DimensionPalette snapshotDimensions = new DimensionPalette();
-        CompoundTag snapshot = train.write(snapshotDimensions, HolderLookup.Provider.create(java.util.stream.Stream.empty()));
+        CompoundTag snapshot = train.write(snapshotDimensions, registries);
         shadowTrain.railways$setShadowSnapshot(snapshot, snapshotDimensions);
         // Discard all passengers from carriages
         for (Carriage carriage : train.carriages) {
