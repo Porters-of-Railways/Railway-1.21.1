@@ -94,7 +94,7 @@ public class CopycatHeadstockModel implements BakedModel {
         }
 
         ModelData.Builder builder = modelData.derive()
-            .with(COLOR, color);
+                .with(COLOR, color);
 
         BlockState material = getMaterial(modelData);
 
@@ -106,9 +106,9 @@ public class CopycatHeadstockModel implements BakedModel {
         builder.with(OCCLUSION_PROPERTY, occlusionData);
 
         ModelData wrappedData = getModelOf(material).getModelData(
-            new FilteredBlockAndTintGetter(level,
-                targetPos -> copycatBlock.canConnectTexturesToward(level, pos, targetPos, state)),
-            pos, material, ModelData.EMPTY);
+                new FilteredBlockAndTintGetter(level,
+                        targetPos -> copycatBlock.canConnectTexturesToward(level, pos, targetPos, state)),
+                pos, material, ModelData.EMPTY);
         return builder.with(WRAPPED_DATA_PROPERTY, wrappedData).build();
     }
 
@@ -122,7 +122,7 @@ public class CopycatHeadstockModel implements BakedModel {
             BlockPos.MutableBlockPos neighbourPos = mutablePos.setWithOffset(pos, face);
             BlockState neighbourState = world.getBlockState(neighbourPos);
             if (state.supportsExternalFaceHiding()
-                && neighbourState.hidesNeighborFace(world, neighbourPos, state, face.getOpposite())) {
+                    && neighbourState.hidesNeighborFace(world, neighbourPos, state, face.getOpposite())) {
                 occlusionData.occlude(face);
                 continue;
             }
@@ -141,10 +141,10 @@ public class CopycatHeadstockModel implements BakedModel {
         List<BakedQuad> quads;
         if (color != null) {
             quads = new ArrayList<>(filterQuads(CopycatHeadstockModel::filterCopycatParts,
-                BakedModelHelper.swapSprites(wrapped.getQuads(state, side, rand), getSwapper(color))));
+                    BakedModelHelper.swapSprites(wrapped.getQuads(state, side, rand), getSwapper(color))));
         } else {
             quads = new ArrayList<>(filterQuads(CopycatHeadstockModel::filterCopycatParts,
-                wrapped.getQuads(state, side, rand)));
+                    wrapped.getQuads(state, side, rand)));
         }
 
         quads.addAll(getCopycatExtensionQuads(state, side, rand, data, renderType));
@@ -158,7 +158,7 @@ public class CopycatHeadstockModel implements BakedModel {
 
     private List<BakedQuad> getCopycatExtensionQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData data, @Nullable RenderType renderType) {
         // Rubidium: see below
-        if (side != null && state.getBlock() instanceof CopycatBlock ccb && ccb.shouldFaceAlwaysRender(state, side))
+        if (side != null && state != null && state.getBlock() instanceof CopycatBlock ccb && ccb.shouldFaceAlwaysRender(state, side))
             return Collections.emptyList();
 
         BlockState material = getMaterial(data);
@@ -171,17 +171,17 @@ public class CopycatHeadstockModel implements BakedModel {
         if (wrappedData == null)
             wrappedData = ModelData.EMPTY;
         if (renderType != null && !Minecraft.getInstance()
-            .getBlockRenderer()
-            .getBlockModel(material)
-            .getRenderTypes(material, rand, wrappedData)
-            .contains(renderType))
+                .getBlockRenderer()
+                .getBlockModel(material)
+                .getRenderTypes(material, rand, wrappedData)
+                .contains(renderType))
             return List.of();
 
         List<BakedQuad> croppedQuads = getCroppedQuads(state, side, rand, material, wrappedData, renderType);
 
         // Rubidium: render side!=null versions of the base material during side==null,
         // to avoid getting culled away
-        if (side == null && state.getBlock() instanceof CopycatBlock ccb)
+        if (side == null && state != null && state.getBlock() instanceof CopycatBlock ccb)
             for (Direction nonOcclusionSide : Iterate.directions)
                 if (ccb.shouldFaceAlwaysRender(state, nonOcclusionSide))
                     croppedQuads.addAll(getCroppedQuads(state, nonOcclusionSide, rand, material, wrappedData, renderType));
@@ -192,13 +192,13 @@ public class CopycatHeadstockModel implements BakedModel {
     protected List<BakedQuad> getCroppedQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, BlockState material,
                                               ModelData wrappedData, @Nullable RenderType renderType) {
         Direction facing = state == null ? Direction.NORTH : state.getOptionalValue(CopycatHeadstockBlock.FACING)
-            .orElse(Direction.NORTH);
+                .orElse(Direction.NORTH);
         boolean upsideDown = state != null && state.getValue(CopycatHeadstockBlock.UPSIDE_DOWN);
 
         if (CopycatSpecialCases.isBarsMaterial(material)) {
             BlockState specialState = CRBlocks.COPYCAT_HEADSTOCK_BARS.getDefaultState()
-                .setValue(CopycatHeadstockBlock.FACING, facing)
-                .setValue(CopycatHeadstockBlock.UPSIDE_DOWN, upsideDown);
+                    .setValue(CopycatHeadstockBlock.FACING, facing)
+                    .setValue(CopycatHeadstockBlock.UPSIDE_DOWN, upsideDown);
 
             BakedModel specialModel = getModelOf(specialState);
             if (specialModel instanceof CopycatHeadstockBarsModel cm) {
@@ -255,7 +255,7 @@ public class CopycatHeadstockModel implements BakedModel {
                         continue;
 
                     quads.add(BakedQuadHelper.cloneWithCustomGeometry(quad,
-                        BakedModelHelper.cropAndMove(quad.getVertices(), quad.getSprite(), bb, offset)));
+                            BakedModelHelper.cropAndMove(quad.getVertices(), quad.getSprite(), bb, offset)));
                 }
 
             }
