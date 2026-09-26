@@ -55,6 +55,7 @@ import com.railwayteam.railways.content.custom_bogeys.renderer.standard.triple_a
 import com.railwayteam.railways.content.custom_bogeys.renderer.standard.triple_axle.RadialBogeyDisplay;
 import com.railwayteam.railways.content.custom_bogeys.renderer.wide.WideComicallyLargeScotchYokeBogeyDisplay;
 import com.railwayteam.railways.content.custom_bogeys.renderer.wide.WideDefaultBogeyDisplay;
+import com.railwayteam.railways.content.custom_bogeys.renderer.wide.WideScotch5AxleBogeyDisplay;
 import com.railwayteam.railways.content.custom_bogeys.renderer.wide.WideScotchYokeBogeyDisplay;
 import com.railwayteam.railways.content.custom_bogeys.special.invisible.InvisibleBogeyRenderer;
 import com.railwayteam.railways.content.custom_bogeys.special.invisible.InvisibleBogeyVisual;
@@ -248,6 +249,11 @@ public class CRBogeyStyles {
             .size(BogeySizes.LARGE, CRBlocks.WIDE_COMICALLY_LARGE_BOGEY, () -> () -> createSizeRenderer(WideComicallyLargeScotchYokeBogeyDisplay::new))
             .build();
 
+    // Wide 5-axle scotch yoke: dedicated 5-axle frame + pistons, wide gauge from the shared wide wheel/pin models
+    public static final BogeyStyle WIDE_SCOTCH_5AXLE = create("wide_scotch_5axle", QUINTUPLEAXLE_CYCLE_GROUP)
+        .size(BogeySizes.LARGE, CRBlocks.WIDE_SCOTCH_BOGEY, () -> () -> createSizeRenderer(WideScotch5AxleBogeyDisplay::new))
+        .build();
+
     // Narrow Bogeys
     public static final BogeyStyle
         NARROW_DEFAULT = create("narrow_default", STANDARD_CYCLE_GROUP)
@@ -435,6 +441,7 @@ public class CRBogeyStyles {
         addToCategory(QUINTUPLEAXLE_CATEGORY, MEDIUM_QUINTUPLE_WHEEL, 17);
         addToCategory(QUINTUPLEAXLE_CATEGORY, MEDIUM_10_0_10_TENDER, 17);
         addToCategory(QUINTUPLEAXLE_CATEGORY, LARGE_CREATE_STYLED_0_10_0, 15);
+        addToCategory(QUINTUPLEAXLE_CATEGORY, WIDE_SCOTCH_5AXLE, 15);
 
         // Sextuple Axle Category
         addToCategory(SEXTUPLEAXLE_CATEGORY, LARGE_CREATE_STYLED_0_12_0, 13);

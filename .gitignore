@@ -52,3 +52,7 @@ common/runs/
 *.pom
 create.pom.xml
 catnip-neoforge.pom
+
+# Personal local tooling (scripts, notes, HotSwap helpers) — not for PR
+/local-dev/
+/temp-model/

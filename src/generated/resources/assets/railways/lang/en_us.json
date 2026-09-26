@@ -2032,6 +2032,7 @@
   "railways.bogeys.styles.singleaxle": "Singleaxle",
   "railways.bogeys.styles.wide_comically_large": "Comically Large",
   "railways.bogeys.styles.wide_default": "Wide",
+  "railways.bogeys.styles.wide_scotch_5axle": "Wide Scotch Yoke (5 Axle)",
   "railways.bogeys.styles.y25": "Y25",
   "railways.buffer.invalid_shape": "Buffers must be placed on a straight track",
   "railways.coupler.edge_spacing": "Carriage Spacing",
