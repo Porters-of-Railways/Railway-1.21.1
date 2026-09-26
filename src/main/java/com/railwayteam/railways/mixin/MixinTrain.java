@@ -411,7 +411,8 @@ public abstract class MixinTrain implements IOccupiedCouplers, IIndexedSchedule,
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private static void readShadowSnapshot(CompoundTag tag, CallbackInfoReturnable<Train> cir) {
+    private static void readShadowSnapshot(CompoundTag tag, HolderLookup.Provider registries, Map<UUID, TrackGraph> trackNetworks,
+                                           DimensionPalette dimensions, CallbackInfoReturnable<Train> cir) {
         Train train = cir.getReturnValue();
         if (tag.contains("ShadowSnapshot", Tag.TAG_COMPOUND)) {
             CompoundTag snapshot = tag.getCompound("ShadowSnapshot").copy();
