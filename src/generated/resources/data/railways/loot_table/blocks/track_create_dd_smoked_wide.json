@@ -17,5 +17,11 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "railways:blocks/track_create_dd_smoked_wide"
+  "random_sequence": "railways:blocks/track_create_dd_smoked_wide",
+  "conditions": [
+    {
+      "condition": "neoforge:mod_loaded",
+      "modid": "create_dd"
+    }
+  ]
 }

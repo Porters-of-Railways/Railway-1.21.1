@@ -17,5 +17,11 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "railways:blocks/track_blue_skies_dusk"
+  "random_sequence": "railways:blocks/track_blue_skies_dusk",
+  "conditions": [
+    {
+      "condition": "neoforge:mod_loaded",
+      "modid": "blue_skies"
+    }
+  ]
 }

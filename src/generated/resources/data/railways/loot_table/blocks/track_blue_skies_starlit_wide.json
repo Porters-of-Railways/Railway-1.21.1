@@ -17,5 +17,11 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "railways:blocks/track_blue_skies_starlit_wide"
+  "random_sequence": "railways:blocks/track_blue_skies_starlit_wide",
+  "conditions": [
+    {
+      "condition": "neoforge:mod_loaded",
+      "modid": "blue_skies"
+    }
+  ]
 }

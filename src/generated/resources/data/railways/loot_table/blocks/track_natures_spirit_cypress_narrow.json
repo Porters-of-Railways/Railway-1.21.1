@@ -17,5 +17,11 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "railways:blocks/track_natures_spirit_cypress_narrow"
+  "random_sequence": "railways:blocks/track_natures_spirit_cypress_narrow",
+  "conditions": [
+    {
+      "condition": "neoforge:mod_loaded",
+      "modid": "natures_spirit"
+    }
+  ]
 }

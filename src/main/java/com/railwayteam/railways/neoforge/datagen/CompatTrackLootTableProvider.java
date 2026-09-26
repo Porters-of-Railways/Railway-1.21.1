@@ -86,48 +86,49 @@ public class CompatTrackLootTableProvider implements DataProvider {
         try {
             String fileName = filePath.getFileName().toString();
             String nameWithoutExt = fileName.substring(0, fileName.length() - 5); // Remove .json
-            String[] parts = nameWithoutExt.substring("track_".length()).split("_");
-            
-            if (parts.length > 0) {
-                String modPrefix = parts[0];
-                String modId = MOD_ID_MAP.get(modPrefix);
+            String trackName = nameWithoutExt.substring("track_".length());
+
+            String modId = MOD_ID_MAP.entrySet().stream()
+                .filter(entry -> trackName.equals(entry.getKey()) || trackName.startsWith(entry.getKey() + "_"))
+                .max(java.util.Comparator.comparingInt(entry -> entry.getKey().length()))
+                .map(Map.Entry::getValue)
+                .orElse(null);
+
+            if (modId != null) {
+                // Read the JSON
+                String content = new String(java.nio.file.Files.readAllBytes(filePath));
+                JsonObject json = com.google.gson.JsonParser.parseString(content).getAsJsonObject();
                 
-                if (modId != null) {
-                    // Read the JSON
-                    String content = new String(java.nio.file.Files.readAllBytes(filePath));
-                    JsonObject json = com.google.gson.JsonParser.parseString(content).getAsJsonObject();
-                    
-                    // Check if conditions array already exists
-                    if (!json.has("conditions")) {
-                        json.add("conditions", new com.google.gson.JsonArray());
-                    }
-                    
-                    com.google.gson.JsonArray conditions = json.getAsJsonArray("conditions");
-                    
-                    // Check if mod_loaded condition already exists
-                    boolean hasModLoadedCondition = false;
-                    for (JsonElement elem : conditions) {
-                        if (elem.isJsonObject()) {
-                            JsonObject cond = elem.getAsJsonObject();
-                            if ("neoforge:mod_loaded".equals(cond.get("condition").getAsString()) 
-                                && modId.equals(cond.get("modid").getAsString())) {
-                                hasModLoadedCondition = true;
-                                break;
-                            }
+                // Check if conditions array already exists
+                if (!json.has("conditions")) {
+                    json.add("conditions", new com.google.gson.JsonArray());
+                }
+                
+                com.google.gson.JsonArray conditions = json.getAsJsonArray("conditions");
+                
+                // Check if mod_loaded condition already exists
+                boolean hasModLoadedCondition = false;
+                for (JsonElement elem : conditions) {
+                    if (elem.isJsonObject()) {
+                        JsonObject cond = elem.getAsJsonObject();
+                        if ("neoforge:mod_loaded".equals(cond.get("condition").getAsString()) 
+                            && modId.equals(cond.get("modid").getAsString())) {
+                            hasModLoadedCondition = true;
+                            break;
                         }
                     }
+                }
+                
+                // Add the condition if it doesn't exist
+                if (!hasModLoadedCondition) {
+                    JsonObject modLoadedCondition = new JsonObject();
+                    modLoadedCondition.addProperty("condition", "neoforge:mod_loaded");
+                    modLoadedCondition.addProperty("modid", modId);
+                    conditions.add(modLoadedCondition);
                     
-                    // Add the condition if it doesn't exist
-                    if (!hasModLoadedCondition) {
-                        JsonObject modLoadedCondition = new JsonObject();
-                        modLoadedCondition.addProperty("condition", "neoforge:mod_loaded");
-                        modLoadedCondition.addProperty("modid", modId);
-                        conditions.add(modLoadedCondition);
-                        
-                        // Write the modified JSON back
-                        String modifiedContent = new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(json);
-                        java.nio.file.Files.write(filePath, modifiedContent.getBytes());
-                    }
+                    // Write the modified JSON back
+                    String modifiedContent = new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(json);
+                    java.nio.file.Files.write(filePath, modifiedContent.getBytes());
                 }
             }
         } catch (Exception e) {

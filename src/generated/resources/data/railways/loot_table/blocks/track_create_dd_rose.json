@@ -17,5 +17,11 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "railways:blocks/track_create_dd_rose"
+  "random_sequence": "railways:blocks/track_create_dd_rose",
+  "conditions": [
+    {
+      "condition": "neoforge:mod_loaded",
+      "modid": "create_dd"
+    }
+  ]
 }
