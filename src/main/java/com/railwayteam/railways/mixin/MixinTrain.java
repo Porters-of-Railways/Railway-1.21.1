@@ -98,6 +98,8 @@ public abstract class MixinTrain implements IOccupiedCouplers, IIndexedSchedule,
     @Unique protected int railways$controlBlockedTicks = -1;
     @Unique protected int railways$controlBlockedSign = 0;
     @Unique protected @Nullable ResourceLocation railways$shadowKey = null;
+    @Unique protected @Nullable CompoundTag railways$shadowSnapshot = null;
+    @Unique protected @Nullable DimensionPalette railways$shadowSnapshotDimensions = null;
 
     @Override
     public boolean railways$isControlBlocked() {
@@ -377,5 +379,49 @@ public abstract class MixinTrain implements IOccupiedCouplers, IIndexedSchedule,
     @Override
     public @Nullable ResourceLocation railways$getShadowKey() {
         return railways$shadowKey;
+    }
+
+    @Override
+    public void railways$setShadowSnapshot(@Nullable CompoundTag snapshot, @Nullable DimensionPalette dimensions) {
+        railways$shadowSnapshot = snapshot;
+        railways$shadowSnapshotDimensions = dimensions;
+    }
+
+    @Override
+    public @Nullable CompoundTag railways$getShadowSnapshot() {
+        return railways$shadowSnapshot;
+    }
+
+    @Override
+    public @Nullable DimensionPalette railways$getShadowSnapshotDimensions() {
+        return railways$shadowSnapshotDimensions;
+    }
+
+    @Inject(method = "write", at = @At("RETURN"))
+    private void writeShadowSnapshot(DimensionPalette dimensions, HolderLookup.Provider registries, CallbackInfoReturnable<CompoundTag> cir) {
+        if (railways$shadowSnapshot != null) {
+            CompoundTag tag = cir.getReturnValue();
+            tag.put("ShadowSnapshot", railways$shadowSnapshot.copy());
+            if (railways$shadowSnapshotDimensions != null) {
+                CompoundTag snapshotDimensions = new CompoundTag();
+                railways$shadowSnapshotDimensions.write(snapshotDimensions);
+                tag.put("ShadowSnapshotDimensions", snapshotDimensions);
+            }
+        }
+    }
+
+    @Inject(method = "read", at = @At("RETURN"))
+    private static void readShadowSnapshot(CompoundTag tag, HolderLookup.Provider registries, Map<UUID, TrackGraph> trackNetworks,
+                                           DimensionPalette dimensions, CallbackInfoReturnable<Train> cir,
+                                           @Local Train train) {
+        if (tag.contains("ShadowSnapshot", Tag.TAG_COMPOUND)) {
+            CompoundTag snapshot = tag.getCompound("ShadowSnapshot").copy();
+            DimensionPalette snapshotDimensions = tag.contains("ShadowSnapshotDimensions", Tag.TAG_COMPOUND)
+                ? DimensionPalette.read(tag.getCompound("ShadowSnapshotDimensions"))
+                : null;
+            ((IShadowTrain) train).railways$setShadowSnapshot(snapshot, snapshotDimensions);
+        } else {
+            ((IShadowTrain) train).railways$setShadowSnapshot(null, null);
+        }
     }
 }

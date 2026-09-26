@@ -18,6 +18,8 @@
 
 package com.railwayteam.railways.mixin_interfaces;
 
+import com.simibubi.create.content.trains.graph.DimensionPalette;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +28,9 @@ public interface IShadowTrain {
     void railways$setShadow(@NotNull ResourceLocation shadowKey);
     void railways$clearShadow();
     @Nullable ResourceLocation railways$getShadowKey();
+    void railways$setShadowSnapshot(@Nullable CompoundTag snapshot, @Nullable DimensionPalette dimensions);
+    @Nullable CompoundTag railways$getShadowSnapshot();
+    @Nullable DimensionPalette railways$getShadowSnapshotDimensions();
     default boolean railways$isShadow() {
         return railways$getShadowKey() != null;
     }

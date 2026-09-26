@@ -31,10 +31,12 @@ import com.railwayteam.railways.Railways;
 import com.railwayteam.railways.mixin.AccessorGlobalRailwayManager;
 import com.railwayteam.railways.mixin_interfaces.IShadowTrain;
 import com.railwayteam.railways.mixin_interfaces.RailwaySavedDataDuck;
+import com.railwayteam.railways.multiloader.PlayerSelection;
+import com.railwayteam.railways.registry.CRPackets;
+import com.railwayteam.railways.util.packet.FullTrainSyncPacket;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.ContraptionRelocationPacket;
 import com.simibubi.create.content.trains.RailwaySavedData;
-import com.simibubi.create.content.trains.entity.AddTrainPacket;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.entity.TrainRelocator;
@@ -43,9 +45,11 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.Vec3;
 
 public class ShadowRealm {
@@ -137,6 +141,13 @@ public class ShadowRealm {
         IShadowTrain shadowTrain = (IShadowTrain) train;
         if (!shadowTrain.railways$isShadow()) return true;
 
+        CompoundTag shadowSnapshot = shadowTrain.railways$getShadowSnapshot();
+        com.simibubi.create.content.trains.graph.DimensionPalette shadowSnapshotDimensions = shadowTrain.railways$getShadowSnapshotDimensions();
+        if (shadowSnapshot != null && shadowSnapshotDimensions != null) {
+            train = Train.read(shadowSnapshot.copy(), target.level().registryAccess(), Create.RAILWAYS.trackNetworks, shadowSnapshotDimensions);
+            shadowTrain = (IShadowTrain) train;
+        }
+
         if (!target.apply(train)) return false;
 
         ((RailwaySavedDataDuck) savedData).railway$getShadowTrains().remove(train.id);
@@ -146,7 +157,10 @@ public class ShadowRealm {
         Create.RAILWAYS.addTrain(train);
         savedData.setDirty();
 
-        net.createmod.catnip.platform.CatnipServices.NETWORK.sendToAllClients(new AddTrainPacket(train));
+        // Send the FULL train (graph + travelling points) so the client can render it.
+        // AddTrainPacket only carries STREAM_CODEC data and omits graph/points, which
+        // leaves the restored train invisible on the client.
+        CRPackets.PACKETS.sendTo(PlayerSelection.all(), new FullTrainSyncPacket(train, target.level().registryAccess()));
         train.status.displayInformation("railways.shadow_realm.restored", true);
         return true;
     }
