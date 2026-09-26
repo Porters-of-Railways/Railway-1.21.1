@@ -120,7 +120,7 @@ public abstract class MixinBezierConnection implements IHasTrackCasing {
   @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"), remap = true)
   private void byteBufConstructor(FriendlyByteBuf buffer, CallbackInfo ci) {
     if (buffer.readBoolean()) {
-      setTrackCasing((SlabBlock) BuiltInRegistries.BLOCK.get(buffer.readResourceLocation()));
+      setTrackCasing(BuiltInRegistries.BLOCK.get(buffer.readResourceLocation()));
       setAlternate(buffer.readBoolean());
     } else {
       setTrackCasing(null);
