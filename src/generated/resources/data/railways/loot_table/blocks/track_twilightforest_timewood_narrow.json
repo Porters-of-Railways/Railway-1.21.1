@@ -18,9 +18,9 @@
     }
   ],
   "random_sequence": "railways:blocks/track_twilightforest_timewood_narrow",
-  "conditions": [
+  "neoforge:conditions": [
     {
-      "condition": "neoforge:mod_loaded",
+      "type": "neoforge:mod_loaded",
       "modid": "twilightforest"
     }
   ]
