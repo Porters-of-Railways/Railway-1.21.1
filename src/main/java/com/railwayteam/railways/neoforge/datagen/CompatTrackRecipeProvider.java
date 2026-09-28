@@ -42,9 +42,6 @@ import static com.railwayteam.railways.compat.tracks.TrackCompatUtils.TRACK_COMP
 public class CompatTrackRecipeProvider implements DataProvider {
     private static final String SLEEPERS_TAG = "create:sleepers";
 
-    private static final List<String> MOD_IDS_BY_LENGTH = TRACK_COMPAT_MODS.stream()
-        .sorted(Comparator.comparingInt(String::length).reversed())
-        .toList();
 
     private final PackOutput output;
 
@@ -92,35 +89,19 @@ public class CompatTrackRecipeProvider implements DataProvider {
                 materialName = materialName.substring(0, materialName.length() - "_narrow".length());
             }
 
-            String compatModId = null;
-            String woodName = null;
-            for (String modId : MOD_IDS_BY_LENGTH) {
-                String prefix = modId + "_";
-                if (materialName.startsWith(prefix)) {
-                    compatModId = modId;
-                    woodName = materialName.substring(prefix.length());
-                    break;
-                }
-            }
-
-            if (compatModId == null || woodName == null || woodName.isBlank()) {
+            var track = CompatDataGenUtils.parseTrackName(materialName);
+            if (track.isEmpty() || track.get().materialName().isBlank()) {
                 return;
             }
 
+            String compatPrefix = track.get().prefix();
+            String compatModId = track.get().modId();
+            String woodName = track.get().materialName();
             JsonObject json = JsonParser.parseString(Files.readString(filePath)).getAsJsonObject();
-            ResourceLocation trueSlabId = resolveCompatSlabId(compatModId, woodName);
+            ResourceLocation trueSlabId = resolveCompatSlabId(compatPrefix, woodName);
             ResourceLocation generatedTagId = ResourceLocation.fromNamespaceAndPath(Railways.MOD_ID, "compat_slabs/" + compatModId + "/" + woodName);
 
-            boolean changed = false;
-            if (!json.has("neoforge:conditions")) {
-                JsonArray conditions = new JsonArray();
-                JsonObject modLoadedObj = new JsonObject();
-                modLoadedObj.addProperty("type", "neoforge:mod_loaded");
-                modLoadedObj.addProperty("modid", compatModId);
-                conditions.add(modLoadedObj);
-                json.add("neoforge:conditions", conditions);
-                changed = true;
-            }
+            boolean changed = CompatDataGenUtils.addModLoadedCondition(json, compatModId);
             changed |= replaceTagsWithItem(json, trueSlabId);
             changed |= replaceItemsWithItem(json, trueSlabId);
 

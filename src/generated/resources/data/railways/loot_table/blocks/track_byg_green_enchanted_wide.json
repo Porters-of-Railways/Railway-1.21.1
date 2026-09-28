@@ -18,9 +18,9 @@
     }
   ],
   "random_sequence": "railways:blocks/track_byg_green_enchanted_wide",
-  "conditions": [
+  "neoforge:conditions": [
     {
-      "condition": "neoforge:mod_loaded",
+      "type": "neoforge:mod_loaded",
       "modid": "biomeswevegone"
     }
   ]

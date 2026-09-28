@@ -18,7 +18,6 @@
 
 package com.railwayteam.railways.neoforge.datagen;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.railwayteam.railways.Railways;
 import net.minecraft.core.HolderLookup;
@@ -27,25 +26,12 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Post-processes compat track loot tables to add mod_loaded conditions after Registrate generates them.
  */
 public class CompatTrackLootTableProvider implements DataProvider {
-
-    private static final Map<String, String> MOD_ID_MAP = Map.ofEntries(
-        Map.entry("biomesoplenty", "biomesoplenty"),
-        Map.entry("blue_skies", "blue_skies"),
-        Map.entry("byg", "biomeswevegone"),
-        Map.entry("create_dd", "create_dd"),
-        Map.entry("hexcasting", "hexcasting"),
-        Map.entry("natures_spirit", "natures_spirit"),
-        Map.entry("quark", "quark"),
-        Map.entry("tfc", "tfc"),
-        Map.entry("twilightforest", "twilightforest")
-    );
 
     private final PackOutput output;
     private final CompletableFuture<HolderLookup.Provider> registries;
@@ -85,50 +71,22 @@ public class CompatTrackLootTableProvider implements DataProvider {
     private void processLootTableFile(Path filePath) {
         try {
             String fileName = filePath.getFileName().toString();
-            String nameWithoutExt = fileName.substring(0, fileName.length() - 5); // Remove .json
-            String[] parts = nameWithoutExt.substring("track_".length()).split("_");
-            
-            if (parts.length > 0) {
-                String modPrefix = parts[0];
-                String modId = MOD_ID_MAP.get(modPrefix);
-                
-                if (modId != null) {
-                    // Read the JSON
-                    String content = new String(java.nio.file.Files.readAllBytes(filePath));
-                    JsonObject json = com.google.gson.JsonParser.parseString(content).getAsJsonObject();
-                    
-                    // Check if conditions array already exists
-                    if (!json.has("conditions")) {
-                        json.add("conditions", new com.google.gson.JsonArray());
-                    }
-                    
-                    com.google.gson.JsonArray conditions = json.getAsJsonArray("conditions");
-                    
-                    // Check if mod_loaded condition already exists
-                    boolean hasModLoadedCondition = false;
-                    for (JsonElement elem : conditions) {
-                        if (elem.isJsonObject()) {
-                            JsonObject cond = elem.getAsJsonObject();
-                            if ("neoforge:mod_loaded".equals(cond.get("condition").getAsString()) 
-                                && modId.equals(cond.get("modid").getAsString())) {
-                                hasModLoadedCondition = true;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    // Add the condition if it doesn't exist
-                    if (!hasModLoadedCondition) {
-                        JsonObject modLoadedCondition = new JsonObject();
-                        modLoadedCondition.addProperty("condition", "neoforge:mod_loaded");
-                        modLoadedCondition.addProperty("modid", modId);
-                        conditions.add(modLoadedCondition);
-                        
-                        // Write the modified JSON back
-                        String modifiedContent = new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(json);
-                        java.nio.file.Files.write(filePath, modifiedContent.getBytes());
-                    }
-                }
+            String nameWithoutExt = fileName.substring(0, fileName.length() - 5);
+            if (!nameWithoutExt.startsWith("track_")) {
+                return;
+            }
+
+            var track = CompatDataGenUtils.parseTrackName(
+                nameWithoutExt.substring("track_".length()));
+            if (track.isEmpty()) {
+                return;
+            }
+
+            String content = new String(java.nio.file.Files.readAllBytes(filePath));
+            JsonObject json = com.google.gson.JsonParser.parseString(content).getAsJsonObject();
+            if (CompatDataGenUtils.addModLoadedCondition(json, track.get().modId())) {
+                String modifiedContent = new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(json);
+                java.nio.file.Files.write(filePath, modifiedContent.getBytes());
             }
         } catch (Exception e) {
             Railways.LOGGER.warn("Failed to process loot table file: {}", filePath, e);
