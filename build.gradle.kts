@@ -157,9 +157,17 @@ neoForge {
             sourceSet(sourceSets.main.get())
         }
     }
+
+    unitTest {
+        enable()
+        testedMod = mods.getByName(modId)
+    }
 }
 
 dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     // NeoForge
     implementation("net.neoforged:neoforge:${neoforgeVersion}")
 
@@ -217,6 +225,10 @@ sourceSets.main {
 }
 
 tasks {
+    test {
+        useJUnitPlatform()
+    }
+
     processResources {
         // Prefer generated resources over hand-crafted duplicates
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
